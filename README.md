@@ -211,7 +211,7 @@ the process of tagging and pushing new releases for GitHub Actions.
 GitHub Actions allows users to select a specific version of the action to use, based on release
 tags. This script simplifies this process by performing the following steps:
 
-1. **Retrieving the latest release tag:** The script starts by fetching the most recent semver
+1. **Retrieving the latest release tag:** The script starts by fetching the most recent SemVer
    release tag of the current branch, by looking at the local data available in your repository.
 1. **Prompting for a new release tag:** The user is then prompted to enter a new release tag. To
    assist with this, the script displays the tag retrieved in the previous step, and validates the
