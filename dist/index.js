@@ -30426,12 +30426,36 @@ exports["default"] = _default;
 /***/ }),
 
 /***/ 3906:
-/***/ ((__unused_webpack_module, exports) => {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createOrUpdateExtension = createOrUpdateExtension;
+const core = __importStar(__nccwpck_require__(2186));
 function createPluginSets(downloadUrl, pluginMetaData, qtcVersion) {
     const allPlatforms = [
         {
@@ -30500,6 +30524,7 @@ function createSaveRequest(pluginName, vendorName, version, pluginSets) {
 async function request(type, url, token, data
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ) {
+    core.debug(`Requesting ${url}, method: ${type}, data: ${data}`);
     const response = await fetch(url, {
         method: type,
         headers: {
@@ -30515,6 +30540,7 @@ async function request(type, url, token, data
     return await response.json();
 }
 async function createOrUpdateExtension(downloadUrl, pluginMetaData, qtcVersion, apiUrl, apiToken) {
+    core.debug(`Creating or updating extension ${pluginMetaData.Name}`);
     const search = await request('GET', `${apiUrl}api/v1/admin/extensions?search=${pluginMetaData.Name}`, apiToken);
     if (!search.items || !Array.isArray(search.items)) {
         throw new Error('Invalid response from the API');
