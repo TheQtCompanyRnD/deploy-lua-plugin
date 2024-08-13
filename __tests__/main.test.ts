@@ -175,6 +175,11 @@ describe('action', () => {
     fetchMock.mockResponseOnce(JSON.stringify({}), { status: 200 })
     await main.run()
     expect(fetchMock).toHaveBeenNthCalledWith(
+      1,
+      'https://example.com/api/v1/admin/extensions?search=ValeLS',
+      expect.anything()
+    )
+    expect(fetchMock).toHaveBeenNthCalledWith(
       2,
       'https://example.com/api/v1/admin/extensions',
       expect.objectContaining({

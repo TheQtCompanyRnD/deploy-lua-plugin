@@ -30662,7 +30662,8 @@ async function run() {
         const api = core.getInput('api');
         const token = core.getInput('token');
         const spec = await fs_1.promises.readFile(specPath);
-        const asJson = (0, luaspec_1.jsonFromSpec)(spec.toString());
+        const asJson = JSON.parse((0, luaspec_1.jsonFromSpec)(spec.toString()));
+        core.debug(`Parsed spec: ${JSON.stringify(asJson)}`);
         if (isTest) {
             // console.log(asJson)
             // The following only works with secret keys etc.
