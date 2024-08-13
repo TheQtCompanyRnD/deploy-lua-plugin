@@ -1,3 +1,5 @@
+import * as core from '@actions/core'
+
 type Platform = 'Windows' | 'Linux' | 'macOS'
 type Architecture = 'x86_64' | 'arm64'
 
@@ -169,6 +171,7 @@ async function request(
   data?: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> {
+  core.debug(`Requesting ${url}, method: ${type}, data: ${data}`)
   const response = await fetch(url, {
     method: type,
     headers: {
@@ -191,6 +194,7 @@ export async function createOrUpdateExtension(
   apiUrl: string,
   apiToken: string
 ): Promise<void> {
+  core.debug(`Creating or updating extension ${pluginMetaData.Name}`)
   const search = await request(
     'GET',
     `${apiUrl}api/v1/admin/extensions?search=${pluginMetaData.Name}`,
