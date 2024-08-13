@@ -1,5 +1,9 @@
 import * as core from '@actions/core'
-import { wait } from './wait'
+import { promises as fs } from 'fs'
+import { jsonFromSpec } from './luaspec'
+import { createOrUpdateExtension, PluginMetaData } from './extensionstore'
+
+// Import fs
 
 /**
  * The main function for the action.
@@ -7,18 +11,29 @@ import { wait } from './wait'
  */
 export async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
+    const specPath: string = core.getInput('spec')
+    const isTest: boolean = core.getInput('test') === 'true'
+    const downloadUrl: string = core.getInput('download-url')
+    const api: string = core.getInput('api')
+    const token: string = core.getInput('token')
 
-    // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-    core.debug(`Waiting ${ms} milliseconds ...`)
+    const spec = await fs.readFile(specPath)
+    const asJson = jsonFromSpec(spec.toString())
 
-    // Log the current timestamp, wait, then log the new timestamp
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    if (isTest) {
+      // console.log(asJson)
+      // The following only works with secret keys etc.
+      return
+    }
+    await createOrUpdateExtension(
+      downloadUrl,
+      asJson as unknown as PluginMetaData,
+      { version: '14.0.0', compat_version: '14.0.0' },
+      api,
+      token
+    )
 
-    // Set outputs for other workflow steps to use
-    core.setOutput('time', new Date().toTimeString())
+    //core.setOutput('outputJson', asJson)
   } catch (error) {
     // Fail the workflow run if an error occurs
     if (error instanceof Error) core.setFailed(error.message)

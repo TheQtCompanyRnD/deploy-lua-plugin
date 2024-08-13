@@ -1,23 +1,31 @@
-name: 'The name of your action here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Deploy Qt Creator Lua Plugin'
+description: 'Deploys a Qt Creator Lua Plugin to the Qt Creator Extension Store'
+author: 'The Qt Company'
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
   icon: 'heart'
-  color: 'red'
+  color: 'green'
 
 # Define your inputs here.
 inputs:
-  milliseconds:
-    description: 'Your input description here'
+  spec:
+    description: 'Path to the Lua plugin spec'
     required: true
-    default: '1000'
+  api:
+    description: 'Path to the Extension store api'
+    required: true
+  token:
+    description: 'Your API Token for the Extension Store'
+    required: true
+  download-url:
+    description: 'The url to download the extension from'
+    required: true
 
 # Define your outputs here.
-outputs:
-  time:
-    description: 'Your output description here'
+#outputs:
+#  time:
+#    description: 'Your output description here'
 
 runs:
   using: node20

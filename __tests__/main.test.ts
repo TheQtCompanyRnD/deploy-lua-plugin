@@ -8,37 +8,41 @@
 
 import * as core from '@actions/core'
 import * as main from '../src/main'
+import path from 'path'
+import fetchMock from 'jest-fetch-mock'
 
 // Mock the action's main function
 const runMock = jest.spyOn(main, 'run')
-
-// Other utilities
-const timeRegex = /^\d{2}:\d{2}:\d{2}/
 
 // Mock the GitHub Actions core library
 let debugMock: jest.SpiedFunction<typeof core.debug>
 let errorMock: jest.SpiedFunction<typeof core.error>
 let getInputMock: jest.SpiedFunction<typeof core.getInput>
 let setFailedMock: jest.SpiedFunction<typeof core.setFailed>
-let setOutputMock: jest.SpiedFunction<typeof core.setOutput>
+//let setOutputMock: jest.SpiedFunction<typeof core.setOutput>
+
+fetchMock.enableMocks()
 
 describe('action', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    fetchMock.resetMocks()
 
     debugMock = jest.spyOn(core, 'debug').mockImplementation()
     errorMock = jest.spyOn(core, 'error').mockImplementation()
     getInputMock = jest.spyOn(core, 'getInput').mockImplementation()
     setFailedMock = jest.spyOn(core, 'setFailed').mockImplementation()
-    setOutputMock = jest.spyOn(core, 'setOutput').mockImplementation()
+    //setOutputMock = jest.spyOn(core, 'setOutput').mockImplementation()
   })
 
   it('sets the time output', async () => {
     // Set the action's inputs as return values from core.getInput()
     getInputMock.mockImplementation(name => {
       switch (name) {
-        case 'milliseconds':
-          return '500'
+        case 'test':
+          return 'true'
+        case 'spec':
+          return path.join(__dirname, 'data', 'testspec.lua')
         default:
           return ''
       }
@@ -47,30 +51,17 @@ describe('action', () => {
     await main.run()
     expect(runMock).toHaveReturned()
 
-    // Verify that all of the core library functions were called correctly
-    expect(debugMock).toHaveBeenNthCalledWith(1, 'Waiting 500 milliseconds ...')
-    expect(debugMock).toHaveBeenNthCalledWith(
-      2,
-      expect.stringMatching(timeRegex)
-    )
-    expect(debugMock).toHaveBeenNthCalledWith(
-      3,
-      expect.stringMatching(timeRegex)
-    )
-    expect(setOutputMock).toHaveBeenNthCalledWith(
-      1,
-      'time',
-      expect.stringMatching(timeRegex)
-    )
     expect(errorMock).not.toHaveBeenCalled()
+    expect(setFailedMock).not.toHaveBeenCalled()
   })
-
-  it('sets a failed status', async () => {
+  it('fails if it tries to exit', async () => {
     // Set the action's inputs as return values from core.getInput()
     getInputMock.mockImplementation(name => {
       switch (name) {
-        case 'milliseconds':
-          return 'this is not a number'
+        case 'test':
+          return 'true'
+        case 'spec':
+          return path.join(__dirname, 'data', 'exit.lua')
         default:
           return ''
       }
@@ -79,11 +70,123 @@ describe('action', () => {
     await main.run()
     expect(runMock).toHaveReturned()
 
-    // Verify that all of the core library functions were called correctly
-    expect(setFailedMock).toHaveBeenNthCalledWith(
-      1,
-      'milliseconds not a number'
-    )
     expect(errorMock).not.toHaveBeenCalled()
+    expect(setFailedMock).toHaveBeenNthCalledWith(1, 'osExit not allowed')
+  })
+  it('fails if it tries to load a file', async () => {
+    // Set the action's inputs as return values from core.getInput()
+    getInputMock.mockImplementation(name => {
+      switch (name) {
+        case 'test':
+          return 'true'
+        case 'spec':
+          return path.join(__dirname, 'data', 'loadfile.lua')
+        default:
+          return ''
+      }
+    })
+
+    await main.run()
+    expect(runMock).toHaveReturned()
+
+    expect(errorMock).not.toHaveBeenCalled()
+    expect(setFailedMock).toHaveBeenNthCalledWith(1, 'loadFile not allowed')
+  })
+  it('can print to debug', async () => {
+    // Set the action's inputs as return values from core.getInput()
+    getInputMock.mockImplementation(name => {
+      switch (name) {
+        case 'test':
+          return 'true'
+        case 'spec':
+          return path.join(__dirname, 'data', 'print.lua')
+        default:
+          return ''
+      }
+    })
+
+    await main.run()
+    expect(runMock).toHaveReturned()
+    expect(debugMock).toHaveBeenNthCalledWith(1, 'Hello World!')
+
+    expect(errorMock).not.toHaveBeenCalled()
+    expect(setFailedMock).not.toHaveBeenCalled()
+  })
+  it('spec must be a table', async () => {
+    // Set the action's inputs as return values from core.getInput()
+    getInputMock.mockImplementation(name => {
+      switch (name) {
+        case 'test':
+          return 'true'
+        case 'spec':
+          return path.join(__dirname, 'data', 'notable.lua')
+        default:
+          return ''
+      }
+    })
+
+    await main.run()
+    expect(runMock).toHaveReturned()
+
+    expect(errorMock).not.toHaveBeenCalled()
+    expect(setFailedMock).toHaveBeenNthCalledWith(1, 'Spec must be a table')
+  })
+  it('should fail if invalid response', async () => {
+    getInputMock.mockImplementation(name => {
+      switch (name) {
+        case 'test':
+          return 'false'
+        case 'spec':
+          return path.join(__dirname, 'data', 'testspec.lua')
+        case 'download-url':
+          return 'https://example.com/test.zip'
+        case 'api':
+          return 'https://example.com/'
+        case 'token':
+          return 'token'
+        default:
+          return ''
+      }
+    })
+
+    fetchMock.mockResponseOnce(JSON.stringify({}), { status: 400 })
+    await main.run()
+    expect(setFailedMock).toHaveBeenCalled()
+  })
+  it('Should create a new plugin if not found', async () => {
+    getInputMock.mockImplementation(name => {
+      switch (name) {
+        case 'test':
+          return 'false'
+        case 'spec':
+          return path.join(__dirname, 'data', 'testspec.lua')
+        case 'download-url':
+          return 'https://example.com/test.zip'
+        case 'api':
+          return 'https://example.com/'
+        case 'token':
+          return '__token__'
+        default:
+          return ''
+      }
+    })
+
+    fetchMock.mockResponseOnce(JSON.stringify({ items: [] }), { status: 200 })
+    fetchMock.mockResponseOnce(JSON.stringify({}), { status: 200 })
+    await main.run()
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      'https://example.com/api/v1/admin/extensions',
+      expect.objectContaining({
+        body: expect.anything(),
+        method: 'POST',
+        headers: expect.objectContaining({
+          Authorization: 'Bearer __token__',
+          'Content-Type': 'application/json',
+          accept: 'application/json'
+        })
+      })
+    )
+    expect(setFailedMock).not.toHaveBeenCalled()
   })
 })
