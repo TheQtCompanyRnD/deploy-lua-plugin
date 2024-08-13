@@ -18,13 +18,16 @@ export async function run(): Promise<void> {
     const token: string = core.getInput('token')
 
     const spec = await fs.readFile(specPath)
-    const asJson = jsonFromSpec(spec.toString())
+    const asJson = JSON.parse(jsonFromSpec(spec.toString()))
+
+    core.debug(`Parsed spec: ${JSON.stringify(asJson)}`)
 
     if (isTest) {
       // console.log(asJson)
       // The following only works with secret keys etc.
       return
     }
+
     await createOrUpdateExtension(
       downloadUrl,
       asJson as unknown as PluginMetaData,
