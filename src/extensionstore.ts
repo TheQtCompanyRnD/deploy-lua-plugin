@@ -174,7 +174,7 @@ async function request(
   })
   if (!response.ok) {
     throw new Error(
-      `HTTP Error: ${(response.status, response.statusText, await response.text())}`
+      `HTTP Error: ${response.status}, ${response.statusText}, ${await response.text()}`
     )
   }
   return await response.json()

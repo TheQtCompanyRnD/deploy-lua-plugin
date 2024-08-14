@@ -149,13 +149,43 @@ describe('action', () => {
       }
     })
 
-    fetchMock.mockResponseOnce('Something went wrong', {
-      status: 400,
-      statusText: 'Bad Request'
+    fetchMock.mockResponseOnce(
+      JSON.stringify({ message: 'Something went wrong' }),
+      {
+        status: 400,
+        statusText: 'Bad Request'
+      }
+    )
+    await main.run()
+    expect(setFailedMock).toHaveBeenCalledWith(
+      'HTTP Error: 400, Bad Request, {"message":"Something went wrong"}'
+    )
+  })
+  it('should handle a 500 error', async () => {
+    getInputMock.mockImplementation(name => {
+      switch (name) {
+        case 'test':
+          return 'false'
+        case 'spec':
+          return path.join(__dirname, 'data', 'testspec.lua')
+        case 'download-url':
+          return 'https://example.com/test.zip'
+        case 'api':
+          return 'https://example.com/'
+        case 'token':
+          return 'token'
+        default:
+          return ''
+      }
+    })
+
+    fetchMock.mockResponseOnce('', {
+      status: 500,
+      statusText: 'Internal Server Error'
     })
     await main.run()
     expect(setFailedMock).toHaveBeenCalledWith(
-      'HTTP Error: Something went wrong'
+      'HTTP Error: 500, Internal Server Error, '
     )
   })
   it('Should create a new plugin if not found', async () => {
