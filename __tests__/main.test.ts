@@ -185,7 +185,7 @@ describe('action', () => {
     })
     await main.run()
     expect(setFailedMock).toHaveBeenCalledWith(
-      'HTTP Error: 500, Internal Server Error, '
+      'HTTP Error: 500, Internal Server Error'
     )
   })
   it('Should create a new plugin if not found', async () => {
