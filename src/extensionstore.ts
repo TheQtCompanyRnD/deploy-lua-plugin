@@ -210,8 +210,18 @@ export async function createOrUpdateExtension(
       ? search.items[0].extension_id
       : ''
   if (extensionId) {
-    await request('PUT', `${apiUrl}api/v1/admin/extensions/${extensionId}`, apiToken, saveRequest)
+    await request(
+      'PUT',
+      `${apiUrl}api/v1/admin/extensions/${extensionId}`,
+      apiToken,
+      saveRequest
+    )
   } else {
-    await request('POST', `${apiUrl}api/v1/admin/extensions`, apiToken, saveRequest)
+    await request(
+      'POST',
+      `${apiUrl}api/v1/admin/extensions`,
+      apiToken,
+      saveRequest
+    )
   }
 }

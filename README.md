@@ -8,16 +8,16 @@
 
 Use this template to bootstrap the creation of a TypeScript action. :rocket:
 
-This template includes compilation support, tests, a validation workflow, publishing, and versioning
-guidance.
+This template includes compilation support, tests, a validation workflow,
+publishing, and versioning guidance.
 
 If you are new, there's also a simpler introduction in the
 [Hello world JavaScript action repository](https://github.com/actions/hello-world-javascript-action).
 
 ## Create Your Own Action
 
-To create your own action, you can use this repository as a template! Just follow the below
-instructions:
+To create your own action, you can use this repository as a template! Just
+follow the below instructions:
 
 1. Click the **Use this template** button at the top of the repository
 1. Select **Create a new repository**
@@ -27,23 +27,25 @@ instructions:
 
 > [!IMPORTANT]
 >
-> Make sure to remove or update the [`CODEOWNERS`](./CODEOWNERS) file! For details on how to use
-> this file, see
+> Make sure to remove or update the [`CODEOWNERS`](./CODEOWNERS) file! For
+> details on how to use this file, see
 > [About code owners](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners).
 
 ## Initial Setup
 
-After you've cloned the repository to your local machine or codespace, you'll need to perform some
-initial setup steps before you can develop your action.
+After you've cloned the repository to your local machine or codespace, you'll
+need to perform some initial setup steps before you can develop your action.
 
 > [!NOTE]
 >
-> You'll need to have a reasonably modern version of [Node.js](https://nodejs.org) handy (20.x or
-> later should work!). If you are using a version manager like
-> [`nodenv`](https://github.com/nodenv/nodenv) or [`nvm`](https://github.com/nvm-sh/nvm), this
-> template has a `.node-version` file at the root of the repository that will be used to
-> automatically switch to the correct version when you `cd` into the repository. Additionally, this
-> `.node-version` file is used by GitHub Actions in any `actions/setup-node` actions.
+> You'll need to have a reasonably modern version of
+> [Node.js](https://nodejs.org) handy (20.x or later should work!). If you are
+> using a version manager like [`nodenv`](https://github.com/nodenv/nodenv) or
+> [`nvm`](https://github.com/nvm-sh/nvm), this template has a `.node-version`
+> file at the root of the repository that will be used to automatically switch
+> to the correct version when you `cd` into the repository. Additionally, this
+> `.node-version` file is used by GitHub Actions in any `actions/setup-node`
+> actions.
 
 1. :hammer_and_wrench: Install the dependencies
 
@@ -72,23 +74,23 @@ initial setup steps before you can develop your action.
 
 ## Update the Action Metadata
 
-The [`action.yml`](action.yml) file defines metadata about your action, such as input(s) and
-output(s). For details about this file, see
+The [`action.yml`](action.yml) file defines metadata about your action, such as
+input(s) and output(s). For details about this file, see
 [Metadata syntax for GitHub Actions](https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions).
 
-When you copy this repository, update `action.yml` with the name, description, inputs, and outputs
-for your action.
+When you copy this repository, update `action.yml` with the name, description,
+inputs, and outputs for your action.
 
 ## Update the Action Code
 
-The [`src/`](./src/) directory is the heart of your action! This contains the source code that will
-be run when your action is invoked. You can replace the contents of this directory with your own
-code.
+The [`src/`](./src/) directory is the heart of your action! This contains the
+source code that will be run when your action is invoked. You can replace the
+contents of this directory with your own code.
 
 There are a few things to keep in mind when writing your action code:
 
-- Most GitHub Actions toolkit and CI/CD operations are processed asynchronously. In `main.ts`, you
-  will see that the action is run in an `async` function.
+- Most GitHub Actions toolkit and CI/CD operations are processed asynchronously.
+  In `main.ts`, you will see that the action is run in an `async` function.
 
   ```javascript
   import * as core from '@actions/core'
@@ -122,11 +124,12 @@ So, what are you waiting for? Go ahead and start customizing your action!
    npm run all
    ```
 
-   > This step is important! It will run [`ncc`](https://github.com/vercel/ncc) to build the final
-   > JavaScript action code with all dependencies included. If you do not run this step, your action
-   > will not work correctly when it is used in a workflow. This step also includes the `--license`
-   > option for `ncc`, which will create a license file for all of the production node modules used
-   > in your project.
+   > This step is important! It will run [`ncc`](https://github.com/vercel/ncc)
+   > to build the final JavaScript action code with all dependencies included.
+   > If you do not run this step, your action will not work correctly when it is
+   > used in a workflow. This step also includes the `--license` option for
+   > `ncc`, which will create a license file for all of the production node
+   > modules used in your project.
 
 1. Commit your changes
 
@@ -147,14 +150,14 @@ So, what are you waiting for? Go ahead and start customizing your action!
 Your action is now published! :rocket:
 
 For information about versioning your action, see
-[Versioning](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) in the GitHub
-Actions toolkit.
+[Versioning](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
+in the GitHub Actions toolkit.
 
 ## Validate the Action
 
-You can now validate the action by referencing it in a workflow file. For example,
-[`ci.yml`](./.github/workflows/ci.yml) demonstrates how to reference an action in the same
-repository.
+You can now validate the action by referencing it in a workflow file. For
+example, [`ci.yml`](./.github/workflows/ci.yml) demonstrates how to reference an
+action in the same repository.
 
 ```yaml
 steps:
@@ -178,13 +181,14 @@ For example workflow runs, check out the
 
 ## Usage
 
-After testing, you can create version tag(s) that developers can use to reference different stable
-versions of your action. For more information, see
-[Versioning](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) in the GitHub
-Actions toolkit.
+After testing, you can create version tag(s) that developers can use to
+reference different stable versions of your action. For more information, see
+[Versioning](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
+in the GitHub Actions toolkit.
 
-To include the action in a workflow in another repository, you can use the `uses` syntax with the
-`@` symbol to reference a specific branch, tag, or commit hash.
+To include the action in a workflow in another repository, you can use the
+`uses` syntax with the `@` symbol to reference a specific branch, tag, or commit
+hash.
 
 ```yaml
 steps:
@@ -205,22 +209,27 @@ steps:
 
 ## Publishing a New Release
 
-This project includes a helper script, [`script/release`](./script/release) designed to streamline
-the process of tagging and pushing new releases for GitHub Actions.
+This project includes a helper script, [`script/release`](./script/release)
+designed to streamline the process of tagging and pushing new releases for
+GitHub Actions.
 
-GitHub Actions allows users to select a specific version of the action to use, based on release
-tags. This script simplifies this process by performing the following steps:
+GitHub Actions allows users to select a specific version of the action to use,
+based on release tags. This script simplifies this process by performing the
+following steps:
 
-1. **Retrieving the latest release tag:** The script starts by fetching the most recent SemVer
-   release tag of the current branch, by looking at the local data available in your repository.
-1. **Prompting for a new release tag:** The user is then prompted to enter a new release tag. To
-   assist with this, the script displays the tag retrieved in the previous step, and validates the
-   format of the inputted tag (vX.X.X). The user is also reminded to update the version field in
-   package.json.
-1. **Tagging the new release:** The script then tags a new release and syncs the separate major tag
-   (e.g. v1, v2) with the new release tag (e.g. v1.0.0, v2.1.2). When the user is creating a new
-   major release, the script auto-detects this and creates a `releases/v#` branch for the previous
-   major version.
-1. **Pushing changes to remote:** Finally, the script pushes the necessary commits, tags and
-   branches to the remote repository. From here, you will need to create a new release in GitHub so
-   users can easily reference the new tags in their workflows.
+1. **Retrieving the latest release tag:** The script starts by fetching the most
+   recent SemVer release tag of the current branch, by looking at the local data
+   available in your repository.
+1. **Prompting for a new release tag:** The user is then prompted to enter a new
+   release tag. To assist with this, the script displays the tag retrieved in
+   the previous step, and validates the format of the inputted tag (vX.X.X). The
+   user is also reminded to update the version field in package.json.
+1. **Tagging the new release:** The script then tags a new release and syncs the
+   separate major tag (e.g. v1, v2) with the new release tag (e.g. v1.0.0,
+   v2.1.2). When the user is creating a new major release, the script
+   auto-detects this and creates a `releases/v#` branch for the previous major
+   version.
+1. **Pushing changes to remote:** Finally, the script pushes the necessary
+   commits, tags and branches to the remote repository. From here, you will need
+   to create a new release in GitHub so users can easily reference the new tags
+   in their workflows.
