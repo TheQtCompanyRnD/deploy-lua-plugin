@@ -100,7 +100,7 @@ function createPluginSets(
     },
     {
       name: 'Linux',
-      version: '20.04.0'
+      version: '20.4.0'
     },
     {
       name: 'macOS',
