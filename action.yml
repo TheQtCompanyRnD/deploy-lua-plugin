@@ -21,6 +21,10 @@ inputs:
   download-url:
     description: 'The url to download the extension from'
     required: true
+  publish:
+    description: 'Whether to immediately set status to "published"'
+    required: false
+    default: 'false'
 
 # Define your outputs here.
 #outputs:
