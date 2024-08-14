@@ -149,7 +149,10 @@ describe('action', () => {
       }
     })
 
-    fetchMock.mockResponseOnce('Something went wrong', { status: 400 })
+    fetchMock.mockResponseOnce('Something went wrong', {
+      status: 400,
+      statusText: 'Bad Request'
+    })
     await main.run()
     expect(setFailedMock).toHaveBeenCalledWith(
       'HTTP Error: Something went wrong'
