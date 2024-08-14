@@ -30457,38 +30457,27 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createOrUpdateExtension = createOrUpdateExtension;
 const core = __importStar(__nccwpck_require__(2186));
 function createPluginSets(downloadUrl, pluginMetaData, qtcVersion) {
-    const allPlatforms = [
+    const osArr = [
         {
             name: 'Windows',
-            version: '10',
-            architecture: 'x86_64'
+            version: '10.0.0'
         },
         {
             name: 'Linux',
-            version: '20.04',
-            architecture: 'x86_64'
+            version: '20.04.0'
         },
         {
             name: 'macOS',
-            version: '11.0',
-            architecture: 'x86_64'
-        },
-        {
-            name: 'Windows',
-            version: '10',
-            architecture: 'arm64'
-        },
-        {
-            name: 'Linux',
-            version: '20.04',
-            architecture: 'arm64'
-        },
-        {
-            name: 'macOS',
-            version: '11.0',
-            architecture: 'arm64'
+            version: '11.0.0'
         }
     ];
+    const allPlatforms = osArr
+        .map(os => {
+        return { ...os, architecture: 'x86_64' };
+    })
+        .concat(osArr.map(os => {
+        return { ...os, architecture: 'arm64' };
+    }));
     return allPlatforms.map(platform => {
         return {
             status: 'draft',

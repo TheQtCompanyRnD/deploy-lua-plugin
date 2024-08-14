@@ -93,38 +93,29 @@ function createPluginSets(
   pluginMetaData: PluginMetaData,
   qtcVersion: Versions
 ): PluginSet[] {
-  const allPlatforms: PlatformDescriptor[] = [
+  const osArr = [
     {
       name: 'Windows',
-      version: '10',
-      architecture: 'x86_64'
+      version: '10.0.0'
     },
     {
       name: 'Linux',
-      version: '20.04',
-      architecture: 'x86_64'
+      version: '20.04.0'
     },
     {
       name: 'macOS',
-      version: '11.0',
-      architecture: 'x86_64'
-    },
-    {
-      name: 'Windows',
-      version: '10',
-      architecture: 'arm64'
-    },
-    {
-      name: 'Linux',
-      version: '20.04',
-      architecture: 'arm64'
-    },
-    {
-      name: 'macOS',
-      version: '11.0',
-      architecture: 'arm64'
+      version: '11.0.0'
     }
   ]
+  const allPlatforms: PlatformDescriptor[] = osArr
+    .map(os => {
+      return { ...os, architecture: 'x86_64' } as PlatformDescriptor
+    })
+    .concat(
+      osArr.map(os => {
+        return { ...os, architecture: 'arm64' } as PlatformDescriptor
+      })
+    )
   return allPlatforms.map(platform => {
     return {
       status: 'draft',
