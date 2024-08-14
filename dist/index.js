@@ -30521,7 +30521,7 @@ async function request(type, url, token, data
             accept: 'application/json',
             'Content-Type': 'application/json'
         },
-        body: data ? JSON.stringify(data) : undefined
+        body: data ? data : undefined
     });
     if (!response.ok) {
         throw new Error(`HTTP Error: ${(response.status, response.statusText, await response.text())}`);

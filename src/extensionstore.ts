@@ -170,7 +170,7 @@ async function request(
       accept: 'application/json',
       'Content-Type': 'application/json'
     },
-    body: data ? JSON.stringify(data) : undefined
+    body: data ? data : undefined
   })
   if (!response.ok) {
     throw new Error(
