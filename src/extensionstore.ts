@@ -13,7 +13,7 @@ export interface PluginMetaData {
   Category: string
   Description: string
   Url: string
-  [name: string]: string
+  Tags: string[]
 }
 
 interface PlatformDescriptor {
@@ -91,7 +91,8 @@ interface Versions {
 function createPluginSets(
   downloadUrl: string,
   pluginMetaData: PluginMetaData,
-  qtcVersion: Versions
+  qtcVersion: Versions,
+  publish: boolean
 ): PluginSet[] {
   const osArr = [
     {
@@ -118,7 +119,7 @@ function createPluginSets(
     )
   return allPlatforms.map(platform => {
     return {
-      status: 'draft',
+      status: publish ? 'published' : 'draft',
       core_version: qtcVersion.version,
       core_compat_version: qtcVersion.compat_version,
       host_os: platform.name,
@@ -137,20 +138,20 @@ function createPluginSets(
 }
 
 function createSaveRequest(
-  pluginName: string,
-  vendorName: string,
-  version: string,
-  pluginSets: PluginSet[]
+  pluginMetaData: PluginMetaData,
+  pluginSets: PluginSet[],
+  publish: boolean
 ): ExtensionSaveRequest {
   return {
-    name: pluginName,
-    vendor: vendorName,
+    name: pluginMetaData.Name,
+    vendor: pluginMetaData.Vendor,
     compatibility: 'Qt 6.0',
     platforms: ['Windows', 'macOS', 'Linux'],
     license: 'os',
-    version,
-    status: 'draft',
+    version: pluginMetaData.Version,
+    status: publish ? 'published' : 'draft',
     is_pack: false,
+    tags: pluginMetaData.Tags,
     plugin_sets: pluginSets
   }
 }
@@ -186,7 +187,8 @@ export async function createOrUpdateExtension(
   pluginMetaData: PluginMetaData,
   qtcVersion: Versions,
   apiUrl: string,
-  apiToken: string
+  apiToken: string,
+  publish: boolean
 ): Promise<void> {
   core.debug(`Creating or updating extension ${pluginMetaData.Name}`)
   const search = await request(
@@ -201,10 +203,9 @@ export async function createOrUpdateExtension(
 
   const saveRequest = JSON.stringify(
     createSaveRequest(
-      pluginMetaData.Name,
-      pluginMetaData.Vendor,
-      pluginMetaData.Version,
-      createPluginSets(downloadUrl, pluginMetaData, qtcVersion)
+      pluginMetaData,
+      createPluginSets(downloadUrl, pluginMetaData, qtcVersion, publish),
+      publish
     )
   )
 

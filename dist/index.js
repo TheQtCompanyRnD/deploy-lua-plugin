@@ -30456,7 +30456,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createOrUpdateExtension = createOrUpdateExtension;
 const core = __importStar(__nccwpck_require__(2186));
-function createPluginSets(downloadUrl, pluginMetaData, qtcVersion) {
+function createPluginSets(downloadUrl, pluginMetaData, qtcVersion, publish) {
     const osArr = [
         {
             name: 'Windows',
@@ -30480,7 +30480,7 @@ function createPluginSets(downloadUrl, pluginMetaData, qtcVersion) {
     }));
     return allPlatforms.map(platform => {
         return {
-            status: 'draft',
+            status: publish ? 'published' : 'draft',
             core_version: qtcVersion.version,
             core_compat_version: qtcVersion.compat_version,
             host_os: platform.name,
@@ -30497,16 +30497,17 @@ function createPluginSets(downloadUrl, pluginMetaData, qtcVersion) {
         };
     });
 }
-function createSaveRequest(pluginName, vendorName, version, pluginSets) {
+function createSaveRequest(pluginMetaData, pluginSets, publish) {
     return {
-        name: pluginName,
-        vendor: vendorName,
+        name: pluginMetaData.Name,
+        vendor: pluginMetaData.Vendor,
         compatibility: 'Qt 6.0',
         platforms: ['Windows', 'macOS', 'Linux'],
         license: 'os',
-        version,
-        status: 'draft',
+        version: pluginMetaData.Version,
+        status: publish ? 'published' : 'draft',
         is_pack: false,
+        tags: pluginMetaData.Tags,
         plugin_sets: pluginSets
     };
 }
@@ -30529,13 +30530,13 @@ async function request(type, url, token, data
     }
     return await response.json();
 }
-async function createOrUpdateExtension(downloadUrl, pluginMetaData, qtcVersion, apiUrl, apiToken) {
+async function createOrUpdateExtension(downloadUrl, pluginMetaData, qtcVersion, apiUrl, apiToken, publish) {
     core.debug(`Creating or updating extension ${pluginMetaData.Name}`);
     const search = await request('GET', `${apiUrl}api/v1/admin/extensions?search=${pluginMetaData.Name}`, apiToken);
     if (!search.items || !Array.isArray(search.items)) {
         throw new Error('Invalid response from the API');
     }
-    const saveRequest = JSON.stringify(createSaveRequest(pluginMetaData.Name, pluginMetaData.Vendor, pluginMetaData.Version, createPluginSets(downloadUrl, pluginMetaData, qtcVersion)));
+    const saveRequest = JSON.stringify(createSaveRequest(pluginMetaData, createPluginSets(downloadUrl, pluginMetaData, qtcVersion, publish), publish));
     const extensionId = search.items.length > 0 && search.items[0].extension_id !== ''
         ? search.items[0].extension_id
         : '';
@@ -30647,10 +30648,11 @@ const extensionstore_1 = __nccwpck_require__(3906);
 async function run() {
     try {
         const specPath = core.getInput('spec');
-        const isTest = core.getInput('test') === 'true';
+        const isTest = core.getInput('test', { required: false }) === 'true';
         const downloadUrl = core.getInput('download-url');
         const api = core.getInput('api');
         const token = core.getInput('token');
+        const publish = core.getInput('publish', { required: false }) === 'true';
         const spec = await fs_1.promises.readFile(specPath);
         const asJson = JSON.parse((0, luaspec_1.jsonFromSpec)(spec.toString()));
         core.debug(`Parsed spec: ${JSON.stringify(asJson)}`);
@@ -30659,7 +30661,7 @@ async function run() {
             // The following only works with secret keys etc.
             return;
         }
-        await (0, extensionstore_1.createOrUpdateExtension)(downloadUrl, asJson, { version: '14.0.0', compat_version: '14.0.0' }, api, token);
+        await (0, extensionstore_1.createOrUpdateExtension)(downloadUrl, asJson, { version: '14.0.0', compat_version: '14.0.0' }, api, token, publish);
         //core.setOutput('outputJson', asJson)
     }
     catch (error) {

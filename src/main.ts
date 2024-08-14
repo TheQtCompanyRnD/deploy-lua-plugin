@@ -12,10 +12,13 @@ import { createOrUpdateExtension, PluginMetaData } from './extensionstore'
 export async function run(): Promise<void> {
   try {
     const specPath: string = core.getInput('spec')
-    const isTest: boolean = core.getInput('test') === 'true'
+    const isTest: boolean =
+      core.getInput('test', { required: false }) === 'true'
     const downloadUrl: string = core.getInput('download-url')
     const api: string = core.getInput('api')
     const token: string = core.getInput('token')
+    const publish: boolean =
+      core.getInput('publish', { required: false }) === 'true'
 
     const spec = await fs.readFile(specPath)
     const asJson = JSON.parse(jsonFromSpec(spec.toString()))
@@ -33,7 +36,8 @@ export async function run(): Promise<void> {
       asJson as unknown as PluginMetaData,
       { version: '14.0.0', compat_version: '14.0.0' },
       api,
-      token
+      token,
+      publish
     )
 
     //core.setOutput('outputJson', asJson)
