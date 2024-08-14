@@ -149,9 +149,11 @@ describe('action', () => {
       }
     })
 
-    fetchMock.mockResponseOnce(JSON.stringify({}), { status: 400 })
+    fetchMock.mockResponseOnce('Something went wrong', { status: 400 })
     await main.run()
-    expect(setFailedMock).toHaveBeenCalled()
+    expect(setFailedMock).toHaveBeenCalledWith(
+      'HTTP Error: Something went wrong'
+    )
   })
   it('Should create a new plugin if not found', async () => {
     getInputMock.mockImplementation(name => {
