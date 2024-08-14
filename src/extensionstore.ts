@@ -173,7 +173,9 @@ async function request(
     body: data ? JSON.stringify(data) : undefined
   })
   if (!response.ok) {
-    throw new Error(`HTTP Error: ${(response.status, response.statusText)}`)
+    throw new Error(
+      `HTTP Error: ${(response.status, response.statusText, response.body)}`
+    )
   }
   return await response.json()
 }
