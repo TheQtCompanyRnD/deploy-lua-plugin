@@ -30464,6 +30464,7 @@ publish, downloadUrl) {
         display_name: pluginMetaData.Name,
         license: 'open-source',
         status: publish ? 'published' : 'unpublished',
+        is_latest: publish,
         tags: pluginMetaData.Tags,
         plugin: {
             metadata: pluginMetaData,
@@ -30497,7 +30498,8 @@ async function request(type, url, token, data
 async function createOrUpdateExtension(downloadUrl, pluginMetaData, apiUrl, apiToken, publish) {
     core.debug(`Creating or updating extension ${pluginMetaData.Name}`);
     const pluginRequest = JSON.stringify(createPluginRequest(pluginMetaData, publish, downloadUrl));
-    await request('POST', `${apiUrl}api/v1/management/plugins`, apiToken, pluginRequest);
+    const url = new URL('/api/v1/management/plugins', apiUrl);
+    await request('POST', url.toString(), apiToken, pluginRequest);
 }
 
 
