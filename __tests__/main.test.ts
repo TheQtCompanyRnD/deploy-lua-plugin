@@ -211,12 +211,7 @@ describe('action', () => {
     await main.run()
     expect(fetchMock).toHaveBeenNthCalledWith(
       1,
-      'https://example.com/api/v1/admin/extensions?search=ValeLS',
-      expect.anything()
-    )
-    expect(fetchMock).toHaveBeenNthCalledWith(
-      2,
-      'https://example.com/api/v1/admin/extensions',
+      'https://example.com/api/v1/management/plugins',
       expect.objectContaining({
         body: expect.anything(),
         method: 'POST',

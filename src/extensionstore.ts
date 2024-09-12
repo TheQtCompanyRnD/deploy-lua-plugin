@@ -4,10 +4,12 @@ type Platform = 'Windows' | 'Linux' | 'macOS'
 type Architecture = 'x86_64' | 'arm64'
 
 export interface PluginMetaData {
+  Id: string
   Name: string
   Version: string
   CompatVersion: string
   Vendor: string
+  VendorId: string
   Copyright: string
   License: string
   Category: string
@@ -18,141 +20,50 @@ export interface PluginMetaData {
 
 interface PlatformDescriptor {
   name: Platform
-  version: string
   architecture: Architecture
 }
 
-interface PluginInstance {
+interface PluginSource {
   url: string
-  size: number
-  meta_data: PluginMetaData
-  dependencies: PluginInstance[]
+  platform?: PlatformDescriptor
 }
 
-interface PluginSet {
-  status: 'published' | 'draft' | 'hidden'
-  core_compat_version: string
-  core_version: string
-  host_os: Platform
-  host_os_version: string
-  host_os_architecture: Architecture
-  plugins: PluginInstance[]
-}
-
-interface ExtensionData {
-  name: string
-  vendor?: string
+interface PluginRequest {
+  id: string
+  display_name: string
   tags?: string[]
-  compatibility: string
-  platforms: string[]
-  license: string
-  copyright?: string
-  version: string
-  version_history?: {
-    version: string
-    released_at: string
-    is_latest: boolean
-  }[]
-  status: 'published' | 'draft' | 'hidden'
-  is_pack: boolean
+  license: 'open-source' | 'commercial'
+  status: 'published' | 'unpublished' | 'disabled'
   icon?: string
   small_icon?: string
-  description_paragraphs?: {
-    header: string
-    text: string[]
-  }[]
-  description_links?: {
-    link_text: string
-    url: string
-  }[]
-  description_images?: {
-    image_label: string
-    url: string
-  }[]
-  download_history?: {
-    download_count: number
-    first_download_at?: string
-    latest_download_at?: string
-  }[]
-  plugin_sets: PluginSet[]
-}
-/*
-interface Extension extends ExtensionData {
-  extension_id: string
-}
-*/
-type ExtensionSaveRequest = ExtensionData
-
-interface Versions {
-  version: string
-  compat_version: string
+  released_at?: string
+  is_latest?: boolean
+  plugin: {
+    metadata: PluginMetaData
+    sources: PluginSource[]
+  }
 }
 
-function createPluginSets(
-  downloadUrl: string,
+function createPluginRequest(
   pluginMetaData: PluginMetaData,
-  qtcVersion: Versions,
-  publish: boolean
-): PluginSet[] {
-  const osArr = [
-    {
-      name: 'Windows',
-      version: '10.0.0'
-    },
-    {
-      name: 'Linux',
-      version: '20.4.0'
-    },
-    {
-      name: 'macOS',
-      version: '11.0.0'
-    }
-  ]
-  const allPlatforms: PlatformDescriptor[] = osArr
-    .map(os => {
-      return { ...os, architecture: 'x86_64' } as PlatformDescriptor
-    })
-    .concat(
-      osArr.map(os => {
-        return { ...os, architecture: 'arm64' } as PlatformDescriptor
-      })
-    )
-  return allPlatforms.map(platform => {
-    return {
-      status: publish ? 'published' : 'draft',
-      core_version: qtcVersion.version,
-      core_compat_version: qtcVersion.compat_version,
-      host_os: platform.name,
-      host_os_version: platform.version, // TODO: pass the real data
-      host_os_architecture: platform.architecture, // TODO: pass the real data
-      plugins: [
+  //pluginSets: PluginSet[],
+  publish: boolean,
+  downloadUrl: string
+): PluginRequest {
+  return {
+    id: pluginMetaData.Id,
+    display_name: pluginMetaData.Name,
+    license: 'open-source',
+    status: publish ? 'published' : 'unpublished',
+    tags: pluginMetaData.Tags,
+    plugin: {
+      metadata: pluginMetaData,
+      sources: [
         {
-          url: downloadUrl,
-          size: 5000, // TODO: check if it is needed, pass the real data
-          meta_data: pluginMetaData,
-          dependencies: []
+          url: downloadUrl
         }
       ]
     }
-  })
-}
-
-function createSaveRequest(
-  pluginMetaData: PluginMetaData,
-  pluginSets: PluginSet[],
-  publish: boolean
-): ExtensionSaveRequest {
-  return {
-    name: pluginMetaData.Name,
-    vendor: pluginMetaData.Vendor,
-    compatibility: 'Qt 6.0',
-    platforms: ['Windows', 'macOS', 'Linux'],
-    license: 'os',
-    version: pluginMetaData.Version,
-    status: publish ? 'published' : 'draft',
-    is_pack: false,
-    tags: pluginMetaData.Tags,
-    plugin_sets: pluginSets
   }
 }
 
@@ -185,47 +96,20 @@ async function request(
 export async function createOrUpdateExtension(
   downloadUrl: string,
   pluginMetaData: PluginMetaData,
-  qtcVersion: Versions,
   apiUrl: string,
   apiToken: string,
   publish: boolean
 ): Promise<void> {
   core.debug(`Creating or updating extension ${pluginMetaData.Name}`)
-  const search = await request(
-    'GET',
-    `${apiUrl}api/v1/admin/extensions?search=${pluginMetaData.Name}`,
-    apiToken
+
+  const pluginRequest = JSON.stringify(
+    createPluginRequest(pluginMetaData, publish, downloadUrl)
   )
 
-  if (!search.items || !Array.isArray(search.items)) {
-    throw new Error('Invalid response from the API')
-  }
-
-  const saveRequest = JSON.stringify(
-    createSaveRequest(
-      pluginMetaData,
-      createPluginSets(downloadUrl, pluginMetaData, qtcVersion, publish),
-      publish
-    )
+  await request(
+    'POST',
+    `${apiUrl}api/v1/management/plugins`,
+    apiToken,
+    pluginRequest
   )
-
-  const extensionId =
-    search.items.length > 0 && search.items[0].extension_id !== ''
-      ? search.items[0].extension_id
-      : ''
-  if (extensionId) {
-    await request(
-      'PUT',
-      `${apiUrl}api/v1/admin/extensions/${extensionId}`,
-      apiToken,
-      saveRequest
-    )
-  } else {
-    await request(
-      'POST',
-      `${apiUrl}api/v1/admin/extensions`,
-      apiToken,
-      saveRequest
-    )
-  }
 }
