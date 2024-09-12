@@ -30456,59 +30456,23 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createOrUpdateExtension = createOrUpdateExtension;
 const core = __importStar(__nccwpck_require__(2186));
-function createPluginSets(downloadUrl, pluginMetaData, qtcVersion, publish) {
-    const osArr = [
-        {
-            name: 'Windows',
-            version: '10.0.0'
-        },
-        {
-            name: 'Linux',
-            version: '20.4.0'
-        },
-        {
-            name: 'macOS',
-            version: '11.0.0'
-        }
-    ];
-    const allPlatforms = osArr
-        .map(os => {
-        return { ...os, architecture: 'x86_64' };
-    })
-        .concat(osArr.map(os => {
-        return { ...os, architecture: 'arm64' };
-    }));
-    return allPlatforms.map(platform => {
-        return {
-            status: publish ? 'published' : 'draft',
-            core_version: qtcVersion.version,
-            core_compat_version: qtcVersion.compat_version,
-            host_os: platform.name,
-            host_os_version: platform.version, // TODO: pass the real data
-            host_os_architecture: platform.architecture, // TODO: pass the real data
-            plugins: [
+function createPluginRequest(pluginMetaData, 
+//pluginSets: PluginSet[],
+publish, downloadUrl) {
+    return {
+        id: pluginMetaData.Id,
+        display_name: pluginMetaData.Name,
+        license: 'open-source',
+        status: publish ? 'published' : 'unpublished',
+        tags: pluginMetaData.Tags,
+        plugin: {
+            metadata: pluginMetaData,
+            sources: [
                 {
-                    url: downloadUrl,
-                    size: 5000, // TODO: check if it is needed, pass the real data
-                    meta_data: pluginMetaData,
-                    dependencies: []
+                    url: downloadUrl
                 }
             ]
-        };
-    });
-}
-function createSaveRequest(pluginMetaData, pluginSets, publish) {
-    return {
-        name: pluginMetaData.Name,
-        vendor: pluginMetaData.Vendor,
-        compatibility: 'Qt 6.0',
-        platforms: ['Windows', 'macOS', 'Linux'],
-        license: 'os',
-        version: pluginMetaData.Version,
-        status: publish ? 'published' : 'draft',
-        is_pack: false,
-        tags: pluginMetaData.Tags,
-        plugin_sets: pluginSets
+        }
     };
 }
 async function request(type, url, token, data
@@ -30530,22 +30494,10 @@ async function request(type, url, token, data
     }
     return await response.json();
 }
-async function createOrUpdateExtension(downloadUrl, pluginMetaData, qtcVersion, apiUrl, apiToken, publish) {
+async function createOrUpdateExtension(downloadUrl, pluginMetaData, apiUrl, apiToken, publish) {
     core.debug(`Creating or updating extension ${pluginMetaData.Name}`);
-    const search = await request('GET', `${apiUrl}api/v1/admin/extensions?search=${pluginMetaData.Name}`, apiToken);
-    if (!search.items || !Array.isArray(search.items)) {
-        throw new Error('Invalid response from the API');
-    }
-    const saveRequest = JSON.stringify(createSaveRequest(pluginMetaData, createPluginSets(downloadUrl, pluginMetaData, qtcVersion, publish), publish));
-    const extensionId = search.items.length > 0 && search.items[0].extension_id !== ''
-        ? search.items[0].extension_id
-        : '';
-    if (extensionId) {
-        await request('PUT', `${apiUrl}api/v1/admin/extensions/${extensionId}`, apiToken, saveRequest);
-    }
-    else {
-        await request('POST', `${apiUrl}api/v1/admin/extensions`, apiToken, saveRequest);
-    }
+    const pluginRequest = JSON.stringify(createPluginRequest(pluginMetaData, publish, downloadUrl));
+    await request('POST', `${apiUrl}api/v1/management/plugins`, apiToken, pluginRequest);
 }
 
 
@@ -30661,7 +30613,7 @@ async function run() {
             // The following only works with secret keys etc.
             return;
         }
-        await (0, extensionstore_1.createOrUpdateExtension)(downloadUrl, asJson, { version: '14.0.0', compat_version: '14.0.0' }, api, token, publish);
+        await (0, extensionstore_1.createOrUpdateExtension)(downloadUrl, asJson, api, token, publish);
         //core.setOutput('outputJson', asJson)
     }
     catch (error) {

@@ -34,7 +34,6 @@ export async function run(): Promise<void> {
     await createOrUpdateExtension(
       downloadUrl,
       asJson as unknown as PluginMetaData,
-      { version: '14.0.0', compat_version: '14.0.0' },
       api,
       token,
       publish
