@@ -66,7 +66,7 @@
     ]
   },
   "dependencies": {
-    "@actions/core": "^1.10.1",
+    "@actions/core": "^1.11.1",
     "jest-fetch-mock": "^3.0.3",
     "lua-in-js": "^2.2.5"
   },
