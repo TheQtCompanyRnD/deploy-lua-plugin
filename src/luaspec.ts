@@ -18,7 +18,10 @@ export function jsonFromSpec(spec: string): string {
     .split('')
     .map(c => {
       if (c.charCodeAt(0) < 127) return c
-      return `\\u${c.charCodeAt(0).toString(16)}`
+      const buf = Buffer.from(c)
+      return Array.prototype.map
+        .call(buf, ce => `\\x${ce.toString(16)}`)
+        .join('')
     })
     .join('')
 
@@ -28,6 +31,8 @@ export function jsonFromSpec(spec: string): string {
   if (!(luaSpec instanceof luainjs.Table)) {
     throw new Error('Spec must be a table')
   }
+
+  console.log('XXXX:', JSON.stringify(luaSpec.toObject()))
 
   return JSON.stringify(luaSpec.toObject())
 }
