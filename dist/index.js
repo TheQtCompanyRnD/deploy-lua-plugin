@@ -4124,11 +4124,10 @@ exports.utils = utils;
     return function (s) {
       // Marcus Tillmanns: Remove the check, otherwise unicode characters are not allowed for no reason.
       return s;
-/*      var m = rx.exec(s);
-      if (!m)
-        return s;
-      raise(null, errors.invalidCodeUnit, toHex(m[0].charCodeAt(0), 4).toUpperCase());
-*/
+      //var m = rx.exec(s);
+      //if (!m)
+      //  return s;
+      //raise(null, errors.invalidCodeUnit, toHex(m[0].charCodeAt(0), 4).toUpperCase());
     };
   }
 
@@ -4458,6 +4457,7 @@ exports.utils = utils;
           type: 'TableCallExpression'
         , base: base
         , 'arguments': args
+        , argument: args
       };
     }
 
@@ -5852,6 +5852,7 @@ exports.utils = utils;
   //     break ::= 'break'
 
   function parseBreakStatement() {
+    consume(';');
     return finishNode(ast.breakStatement());
   }
 
@@ -5913,10 +5914,12 @@ exports.utils = utils;
 
     if ('end' !== token.value) {
       var expression = parseExpression(flowContext);
-      if (null != expression) expressions.push(expression);
-      while (consume(',')) {
-        expression = parseExpectedExpression(flowContext);
+      if (null != expression) {
         expressions.push(expression);
+        while (consume(',')) {
+          expression = parseExpectedExpression(flowContext);
+          expressions.push(expression);
+        }
       }
       consume(';'); // grammar tells us ; is optional here.
     }
@@ -6544,10 +6547,12 @@ exports.utils = utils;
           // List of expressions
           var expressions = [];
           var expression = parseExpression(flowContext);
-          if (null != expression) expressions.push(expression);
-          while (consume(',')) {
-            expression = parseExpectedExpression(flowContext);
+          if (null != expression) {
             expressions.push(expression);
+            while (consume(',')) {
+              expression = parseExpectedExpression(flowContext);
+              expressions.push(expression);
+            }
           }
 
           expect(')');
