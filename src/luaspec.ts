@@ -13,7 +13,16 @@ export function jsonFromSpec(spec: string): string {
     },
     stdout: data => core.debug(data)
   })
-  const luaSpecScript = luaEnv.parse(spec.toString())
+
+  const escapedSpec = spec
+    .split('')
+    .map(c => {
+      if (c.charCodeAt(0) < 127) return c
+      return `\\u${c.charCodeAt(0).toString(16)}`
+    })
+    .join('')
+
+  const luaSpecScript = luaEnv.parse(escapedSpec.toString())
   const luaSpec = luaSpecScript.exec()
 
   if (!(luaSpec instanceof luainjs.Table)) {

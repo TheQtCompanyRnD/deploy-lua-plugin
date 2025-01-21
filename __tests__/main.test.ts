@@ -131,6 +131,25 @@ describe('action', () => {
     expect(errorMock).not.toHaveBeenCalled()
     expect(setFailedMock).toHaveBeenNthCalledWith(1, 'Spec must be a table')
   })
+  it('spec can contain utf-8 characters', async () => {
+    // Set the action's inputs as return values from core.getInput()
+    getInputMock.mockImplementation(name => {
+      switch (name) {
+        case 'test':
+          return 'true'
+        case 'spec':
+          return path.join(__dirname, 'data', 'utf8spec.lua')
+        default:
+          return ''
+      }
+    })
+
+    await main.run()
+    expect(runMock).toHaveReturned()
+
+    expect(errorMock).not.toHaveBeenCalled()
+    expect(setFailedMock).not.toHaveBeenCalled()
+  })
   it('should fail if invalid response', async () => {
     getInputMock.mockImplementation(name => {
       switch (name) {
