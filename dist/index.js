@@ -30623,7 +30623,11 @@ async function run() {
             // The following only works with secret keys etc.
             return;
         }
-        await (0, extensionstore_1.createOrUpdateExtension)(downloadUrl, asJson, api, token, publish);
+        const metaData = asJson;
+        await (0, extensionstore_1.createOrUpdateExtension)(downloadUrl, metaData, api, token, publish);
+        core.summary
+            .addHeading('Extension created or updated')
+            .addLink('Check API', `${api}/api/v1/plugins/${metaData.VendorId}.${metaData.Id}/versions`);
         //core.setOutput('outputJson', asJson)
     }
     catch (error) {

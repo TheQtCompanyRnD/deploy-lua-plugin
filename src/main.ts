@@ -31,13 +31,16 @@ export async function run(): Promise<void> {
       return
     }
 
-    await createOrUpdateExtension(
-      downloadUrl,
-      asJson as unknown as PluginMetaData,
-      api,
-      token,
-      publish
-    )
+    const metaData = asJson as unknown as PluginMetaData
+
+    await createOrUpdateExtension(downloadUrl, metaData, api, token, publish)
+
+    core.summary
+      .addHeading('Extension created or updated')
+      .addLink(
+        'Check API',
+        `${api}/api/v1/plugins/${metaData.VendorId}.${metaData.Id}/versions`
+      )
 
     //core.setOutput('outputJson', asJson)
   } catch (error) {
