@@ -2,6 +2,7 @@ import * as core from '@actions/core'
 import { promises as fs } from 'fs'
 import { jsonFromSpec } from './luaspec'
 import { createOrUpdateExtension, PluginMetaData } from './extensionstore'
+import { env } from 'process'
 
 // Import fs
 
@@ -35,12 +36,17 @@ export async function run(): Promise<void> {
 
     await createOrUpdateExtension(downloadUrl, metaData, api, token, publish)
 
-    core.summary
-      .addHeading('Extension created or updated')
-      .addLink(
-        'Check API',
-        `${api}/api/v1/plugins/${metaData.VendorId}.${metaData.Id}/versions`
-      )
+    if (env.GITHUB_STEP_SUMMARY) {
+      core.summary
+        .addHeading('Extension created or updated')
+        .addLink(
+          'Check API',
+          `${api}/api/v1/plugins/${metaData.VendorId}.${metaData.Id}/versions`
+        )
+        .write()
+    } else {
+      core.warning('No $GITHUB_STEP_SUMMARY found')
+    }
 
     //core.setOutput('outputJson', asJson)
   } catch (error) {

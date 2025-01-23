@@ -30602,6 +30602,7 @@ const core = __importStar(__nccwpck_require__(2186));
 const fs_1 = __nccwpck_require__(7147);
 const luaspec_1 = __nccwpck_require__(8018);
 const extensionstore_1 = __nccwpck_require__(3906);
+const process_1 = __nccwpck_require__(7282);
 // Import fs
 /**
  * The main function for the action.
@@ -30625,9 +30626,15 @@ async function run() {
         }
         const metaData = asJson;
         await (0, extensionstore_1.createOrUpdateExtension)(downloadUrl, metaData, api, token, publish);
-        core.summary
-            .addHeading('Extension created or updated')
-            .addLink('Check API', `${api}/api/v1/plugins/${metaData.VendorId}.${metaData.Id}/versions`);
+        if (process_1.env.GITHUB_STEP_SUMMARY) {
+            core.summary
+                .addHeading('Extension created or updated')
+                .addLink('Check API', `${api}/api/v1/plugins/${metaData.VendorId}.${metaData.Id}/versions`)
+                .write();
+        }
+        else {
+            core.warning('No $GITHUB_STEP_SUMMARY found');
+        }
         //core.setOutput('outputJson', asJson)
     }
     catch (error) {
@@ -30781,6 +30788,14 @@ module.exports = require("path");
 
 "use strict";
 module.exports = require("perf_hooks");
+
+/***/ }),
+
+/***/ 7282:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("process");
 
 /***/ }),
 
